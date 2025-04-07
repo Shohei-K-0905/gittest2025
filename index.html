@@ -1,0 +1,67 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <title>桜の開花予想</title>
+</head>
+<body>
+  <h1>桜の開花予想</h1>
+  <form id="forecastForm">
+    <label for="date">日付:</label>
+    <input type="date" id="date" name="date" required>
+    <br><br>
+    <label for="location">地名:</label>
+    <input type="text" id="location" name="location" placeholder="例: 東京" required>
+    <br><br>
+    <button type="submit">予想を取得</button>
+  </form>
+  
+  <div id="result" style="margin-top:20px;"></div>
+  
+  <script>
+    document.getElementById("forecastForm").addEventListener("submit", function(event) {
+      event.preventDefault(); // フォームのデフォルト送信をキャンセル
+
+      // 入力された日付と地名を取得
+      const date = document.getElementById("date").value;
+      const location = document.getElementById("location").value;
+      
+      // APIキーとエンドポイント（※実際のものに置き換えてください）
+      const apiKey = "YOUR_API_KEY";
+      const apiUrl = `https://api.example.com/sakura?date=${encodeURIComponent(date)}&location=${encodeURIComponent(location)}&apiKey=${apiKey}`;
+      
+      // 結果表示エリアに「読み込み中...」と表示
+      document.getElementById("result").innerHTML = "読み込み中...";
+      
+      // APIにリクエストを送信
+      fetch(apiUrl)
+        .then(response => {
+          if (!response.ok) {
+            throw new Error("ネットワークエラー: " + response.statusText);
+          }
+          return response.json();
+        })
+        .then(data => {
+          /* 
+            ここではAPIレスポンスが以下のようなJSON形式を返すと仮定しています。
+            {
+              "sakura": {
+                "first_bloom": "2025-03-24",
+                "full_bloom": "2025-03-30"
+              }
+            }
+          */
+          const resultHtml = `
+            <h2>${location} の桜開花予想</h2>
+            <p>予想開花日: ${data.sakura.first_bloom}</p>
+            <p>予想満開日: ${data.sakura.full_bloom}</p>
+          `;
+          document.getElementById("result").innerHTML = resultHtml;
+        })
+        .catch(error => {
+          document.getElementById("result").innerHTML = "エラーが発生しました: " + error;
+        });
+    });
+  </script>
+</body>
+</html>
